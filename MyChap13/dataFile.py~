@@ -1,0 +1,19 @@
+import keras
+
+def readDataFile():
+    f = open("jena_climate_2009_2016.csv")
+    data = f.read()
+    lines = data.split('\n')
+
+    header = lines[0].split(',')
+    lines = lines[1:]
+    f.close()
+    
+    print("header", header)
+    print("len(lines)=", len(lines))
+
+def main():
+    readDataFile()
+
+main()
+
