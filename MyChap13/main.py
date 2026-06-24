@@ -7,7 +7,8 @@ from LSTM import LSTM
 
 def main():
     dataFile = DataFile()
-    LSTM(dataFile)
+    lstm = LSTM(dataFile)
+    lstm.fit()
 
 main()
 

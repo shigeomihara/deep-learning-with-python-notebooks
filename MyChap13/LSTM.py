@@ -14,3 +14,17 @@ class LSTM:
         x = lstm(inputs)
         outputs = layers.Dense(1)(x)
         
+        self.model = keras.Model(inputs, outputs)
+
+        self.callbacks = [
+            keras.callbacks.ModelCheckpoint("jena_lstm.keras", save_best_only=True)
+        ]
+        self.model.compile(optimizer="adam", loss="mse", metrics=["mae"])
+
+    def fit(self):
+        history = self.model.fit(
+            self.dataFile.train_dataset,
+            epochs=10,
+            validation_data=self.dataFile.val_dataset,
+            callbacks=self.callbacks,
+        )

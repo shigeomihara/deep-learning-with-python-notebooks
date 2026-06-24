@@ -1,4 +1,5 @@
 import numpy as np
+import keras
 
 class DataFile:
     def __init__(self):
@@ -37,6 +38,41 @@ class DataFile:
         self.raw_data /= std
 
         # print(self.raw_data)
+
+        sampling_rate = 6
+        sequence_length = 120
+        delay = sampling_rate * (sequence_length + 24 - 1)
+        batch_size = 256
+        
+        self.train_dataset = keras.utils.timeseries_dataset_from_array(
+            self.raw_data[:-delay],
+            targets=self.temperature[delay:],
+            sampling_rate=sampling_rate,
+            sequence_length=sequence_length,
+            shuffle=True,
+            batch_size=batch_size,
+            start_index=0,
+            end_index=self.num_train_samples,
+        )
+        self.val_dataset = keras.utils.timeseries_dataset_from_array(
+            self.raw_data[:-delay],
+            targets=self.temperature[delay:],
+            sampling_rate=sampling_rate,
+            sequence_length=sequence_length,
+            shuffle=True,
+            batch_size=batch_size,
+            start_index=self.num_train_samples,
+            end_index=self.num_train_samples + self.num_val_samples,
+        )
+        self.test_dataset = keras.utils.timeseries_dataset_from_array(
+            self.raw_data[:-delay],
+            targets=self.temperature[delay:],
+            sampling_rate=sampling_rate,
+            sequence_length=sequence_length,
+            shuffle=True,
+            batch_size=batch_size,
+            start_index=self.num_train_samples + self.num_val_samples,
+        )
         
             
             
