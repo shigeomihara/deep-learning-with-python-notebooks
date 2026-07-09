@@ -1,5 +1,5 @@
-import os
-os.environ["KERAS_BACKEND"] = "jax"
+# import os
+# os.environ["KERAS_BACKEND"] = "jax"
 
 from keras.datasets import mnist
 from keras import layers
