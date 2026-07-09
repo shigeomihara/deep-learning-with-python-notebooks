@@ -1,5 +1,5 @@
-# import os
-# os.environ["KERAS_BACKEND"] = "jax"
+import os
+os.environ["KERAS_BACKEND"] = "jax"
 
 from keras.datasets import mnist
 from keras import layers
@@ -20,8 +20,9 @@ test_images = test_images.reshape((10000, 28 * 28)).astype("float32") / 255
 train_images, val_images = images[10000:], images[:10000]
 train_labels, val_labels = labels[10000:], labels[:10000]
 
-print(train_images[15:20])
-exit()
+# print(train_images[15:20])
+# print(train_labels[15:20])
+# exit()
 
 model = get_mnist_model()
 loss_fn = keras.losses.SparseCategoricalCrossentropy()
@@ -99,6 +100,7 @@ class CustomModel(keras.Model):
             self.compute_loss_and_updates, has_aux=True
         )
 
+        #(loss, (predictions, non_trainable_variables)), grads = grad_fn(
         (loss, non_trainable_variables), grads = grad_fn(
             trainable_variables,
             non_trainable_variables,
@@ -106,7 +108,6 @@ class CustomModel(keras.Model):
             targets,
             training=True,
         )
-
         (
             trainable_variables,
             optimizer_variables,
@@ -114,14 +115,28 @@ class CustomModel(keras.Model):
             optimizer_variables, grads, trainable_variables
         )
 
-        logs = {"loss": loss}
+        new_metrics_vars = []
+        logs = {}
+        for metric in self.metrics:
+            num_prev = len(new_metrics_vars)
+            num_current = len(metric.variables)
+            current_vars = metrics_variables[num_prev : num_prev + num_current]
+            if metric.name == "loss":
+                current_vars = metric.stateless_update_state(current_vars, loss)
+            else:
+                current_vars = metric.stateless_update_state(
+                    current_vars, targets, predictions
+                )
+            logs[metric.name] = metric.stateless_result(current_vars)
+            new_metrics_vars += current_vars
+
         state = (
             trainable_variables,
             non_trainable_variables,
             optimizer_variables,
-            metrics_variables,
+            new_metrics_vars,
         )
-        return logs, state
+        return logs, state    
 
 def get_custom_model():
     inputs = keras.Input(shape=(28 * 28,))
