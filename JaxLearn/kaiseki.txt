@@ -1,0 +1,64 @@
+current_interpreter = eval_interpreter()  global変数
+nth_order_derivative(2, foo, 2.0)
+print("n=", 2, "x=", 2.0)
+derivative(lambda x: nth_order_derivative(1, foo, x), 2.0)
+jvp(lambda x: nth_order_derivative(1, foo, x), 2.0, 1.0)
+jvp_interpreter0 = JVPInterpreter(eval_interpreter)
+set_interpreter(jvp_interpreter0)
+    prev_interpreter0 = eval_interpreter
+    current_interpreter = jvp_interpreter0
+    (lambda x: nth_order_derivative(1, foo, x))(TaggedDualNumber(jvp_interpreter0, 2.0, 1.0))
+    すなわち、nth_order_derivative(1, foo, TaggedDualNumber(jvp_interpreter0, 2.0, 1.0))
+    print("n=", 1, "x=", TaggedDualNumber(jvp_interpreter0, 2.0, 1.0))
+    derivative(lambda x: nth_order_derivative(0, foo, x), TaggedDualNumber(jvp_interpreter0, 2.0, 1.0))
+    jvp(lambda x: nth_order_derivative(0, foo, x), TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0)
+    jvp_interpreter1 = JVPInterpreter(jvp_interpreter0)
+    set_interpreter(jvp_interpreter1)
+        prev_interpreter = jvp_interpreter0
+        current_interpreter = jvp_interpreter1
+        (lambda x: nth_order_derivative(0, foo, x))(TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0)
+        すなわち、nth_order_derivative(0, foo, TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0))
+        print("n=", 0, "x=", TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0))
+        foo(TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0))
+        z0 = add(TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0), 3.0)
+        jvp_interpreter1.interpret_op(Op.add, (TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0), 3.0))
+        set_interpreter(jvp_interpreter0)
+            prev_interpreter = jvp_interpreter1
+            current_interpreter = jvp_interpreter0
+            z1 = add(TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 3.0)
+            すなわち、jvp_interpreter0.interpret_op(Op.add, TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 3.0)
+            set_interpreter(eval_interpreter)
+                prev_interpreter = jvp_interpreter0
+                current_interpreter = eval_interpreter
+                add(2.0, 3.0) = 2.0 + 3.0 = 5.0
+                add(1.0, 0.0) = 1.0
+                return TaggedDualNumber(jvp_interpreter0, 2.0, 1.0) --> z1
+                current_interpreter = jvp_interpreter0
+            w1 = add(1.0, 0.0)
+            すなわち、jvp_interpreter0.interpret_op(Op.add, 1.0, 0.0)
+            set_interpreter(eval_interpreter)
+                prev_interpreter = jvp_interpreter0
+                current_interpreter = eval_interpreter
+                add(1.0, 0.0) = 1.0
+                add(0.0, 0.0) = 0.0
+                return TaggedDualNumber(jvp_interpreter0, 1.0, 0.0) --> w1
+                current_interpreter = jvp_interpreter0
+            return TaggedDualNumber(jvp_interpreter0, z1, w1) --> z0
+            current_interpreter = jvp_interpreter1
+        z2 = mul(TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0), z0)
+        jvp_interpreter1.interpret_op(Op.mul, (TaggedDualNumber(jvp_interpreter1,TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), 1.0), z0))
+        set_interpreter(jvp_interpreter0)
+            prev_interpreter = jvp_interpreter1
+            current_interpreter = jvp_interpreter0
+            z2 = mul(TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), z1)
+            すなわち、jvp_interpreter0.interpret_op(Op.mul, TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), z1)
+            set_interpreter(eval_interpreter)
+                prev_interpreter = jvp_interpreter0
+                current_interpreter = eval_interpreter
+                mul
+            
+        w2 = add(mul(TaggedDualNumber(jvp_interpreter0, 2.0, 1.0), z0.tangent), mul(1.0, z0.primal))
+        return TaggedDualNumber(jvp_interpreter1, z2, w2)
+
+        current_interpreter = jvp_interpreter0
+    current_interpreter = eval_interpreter

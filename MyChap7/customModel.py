@@ -1,8 +1,21 @@
 ############################ customModel.py ##########################
-import keras
 import jax
+import keras
+from keras import layers
 
 class CustomModel(keras.Model):
+    def __init__(self):
+        super().__init__()
+        self.dense_layer = layers.Dense(512, activation="relu")
+        self.dropout_layer = layers.Dropout(0.5)
+        self.output_layer = layers.Dense(10, activation="softmax")
+
+    def call(self, inputs, training):
+        features = self.dense_layer(inputs)
+        features = self.dropout_layer(features)
+        outputs = self.output_layer(features)
+        return outputs
+    
     def compute_loss_and_updates(
         self,
         trainable_variables,
@@ -18,8 +31,11 @@ class CustomModel(keras.Model):
             training=training,
         )
         
-        loss = keras.losses.SparseCategoricalCrossentropy()(targets, predictions)
-        return loss, non_trainable_variables
+        # loss = keras.losses.SparseCategoricalCrossentropy()(targets, predictions)
+        # return loss, non_trainable_variables
+
+        loss = self.compute_loss(y=targets, y_pred=predictions)
+        return loss, (predictions, non_trainable_variables)
 
     def train_step(self, state, data):
         (
@@ -34,8 +50,8 @@ class CustomModel(keras.Model):
             self.compute_loss_and_updates, has_aux=True
         )
 
-        #(loss, (predictions, non_trainable_variables)), grads = grad_fn(
-        (loss, non_trainable_variables), grads = grad_fn(
+        (loss, (predictions, non_trainable_variables)), grads = grad_fn(
+        # (loss, non_trainable_variables), grads = grad_fn(
             trainable_variables,
             non_trainable_variables,
             inputs,
@@ -72,14 +88,14 @@ class CustomModel(keras.Model):
         )
         return logs, state    
 
-from keras import layers
+# from keras import layers
 
-def get_custom_model():
-    inputs = keras.Input(shape=(28 * 28,))
-    features = layers.Dense(512, activation="relu")(inputs)
-    features = layers.Dropout(0.5)(features)
-    outputs = layers.Dense(10, activation="softmax")(features)
-    model = CustomModel(inputs, outputs)
-    model.compile(optimizer=keras.optimizers.Adam())
-    return model
+# def get_custom_model():
+#     inputs = keras.Input(shape=(28 * 28,))
+#     features = layers.Dense(512, activation="relu")(inputs)
+#     features = layers.Dropout(0.5)(features)
+#     outputs = layers.Dense(10, activation="softmax")(features)
+#     model = CustomModel(inputs, outputs)
+#     model.compile(optimizer=keras.optimizers.Adam())
+#     return model
 
