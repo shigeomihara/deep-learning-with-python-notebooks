@@ -2,12 +2,16 @@ import os
 os.environ["KERAS_BACKEND"] = "jax"
 os.environ["JAX_PLATFORMS"] = "cpu"
 
-from dataFile import DataFile
+#from dataFile import DataFile
+import dataFile
 from LSTM import LSTM
 
 def main():
     # dataFile = DataFile()
-    dataFile = DataFile_Iph()
+    dataFileIph = dataFile.DataFile_Iph()
+    dataFileIph.plot()
+    exit()
+    
     lstm = LSTM(dataFile)
     lstm.fit()
     lstm.saveHistory()
