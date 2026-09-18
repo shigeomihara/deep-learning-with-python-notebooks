@@ -21,11 +21,24 @@ def main():
         # metrics=[["mean_absolute_error"], ["accuracy"]],
         metrics=["accuracy"],
         )
+
+    callbacks_list = [
+        keras.callbacks.EarlyStopping(
+            monitor="accuracy",
+            patience=1,
+            ),
+        keras.callbacks.ModelCheckpoint(
+            filepath="checkpoint.keras",
+            monitor="val_loss",
+            save_best_only=True,
+            ),
+        ]
         
     model.fit(
-        train_images,
-        train_labels,
+        x=train_images,
+        y=train_labels,
         epochs=3,
+        callbacks=callbacks_list,
         validation_data=(val_images, val_labels),
     )
 

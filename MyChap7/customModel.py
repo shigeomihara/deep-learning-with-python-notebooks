@@ -10,7 +10,11 @@ class CustomModel(keras.Model):
         self.dropout_layer = layers.Dropout(0.5)
         self.output_layer = layers.Dense(10, activation="softmax")
 
-    def call(self, inputs, training):
+    def call(
+            self,
+            inputs,
+            *args ########################
+    ):
         features = self.dense_layer(inputs)
         features = self.dropout_layer(features)
         outputs = self.output_layer(features)
@@ -23,12 +27,14 @@ class CustomModel(keras.Model):
         inputs,
         targets,
         training=False,
+        # *args #########################
     ):
         predictions, non_trainable_variables = self.stateless_call(
             trainable_variables,
             non_trainable_variables,
             inputs,
-            training=training,
+            #training=training,
+            training,
         )
         
         # loss = keras.losses.SparseCategoricalCrossentropy()(targets, predictions)
@@ -56,7 +62,7 @@ class CustomModel(keras.Model):
             non_trainable_variables,
             inputs,
             targets,
-            training=True,
+            #SH training=True,
         )
         (
             trainable_variables,
