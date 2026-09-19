@@ -2,6 +2,7 @@
 import jax
 import keras
 from keras import layers
+from keras.src import backend ####################
 
 class CustomModel(keras.Model):
     def __init__(self):
@@ -13,35 +14,79 @@ class CustomModel(keras.Model):
     def call(
             self,
             inputs,
-            *args ########################
+            **kwargs,######################
     ):
         features = self.dense_layer(inputs)
         features = self.dropout_layer(features)
         outputs = self.output_layer(features)
         return outputs
     
-    def compute_loss_and_updates(
-        self,
-        trainable_variables,
-        non_trainable_variables,
-        inputs,
-        targets,
-        training=False,
-        # *args #########################
-    ):
-        predictions, non_trainable_variables = self.stateless_call(
-            trainable_variables,
-            non_trainable_variables,
-            inputs,
-            #training=training,
-            training,
-        )
-        
-        # loss = keras.losses.SparseCategoricalCrossentropy()(targets, predictions)
-        # return loss, non_trainable_variables
+    # def compute_loss_and_updates(
+    #     self,
+    #     trainable_variables,
+    #     non_trainable_variables,
+    #     metrics_variables, ##############
+    #     inputs,
+    #     targets,
+    #     sample_weight, ###########################
+    #     training=False,
+    #     optimizer_variables=None,#######################
+    # ):
+    #     """This method is stateless and is intended for use with jax.grad."""
+    #     kwargs = {}
+    #     if self._call_has_training_arg:
+    #         kwargs["training"] = training
 
-        loss = self.compute_loss(y=targets, y_pred=predictions)
-        return loss, (predictions, non_trainable_variables)
+    #     predictions, non_trainable_variables, losses = self.stateless_call(
+    #         trainable_variables,
+    #         non_trainable_variables,
+    #         inputs,
+    #         return_losses=True,############
+    #         # training=training,##############
+    #         **kwargs,####################
+    #     )
+        
+    #     if losses:
+    #         # Make forward pass losses available to compute_loss.
+    #         self._losses_override.clear()
+    #         self._losses_override = losses
+
+    #     loss, variables = self.stateless_compute_loss(
+    #         trainable_variables,
+    #         non_trainable_variables,
+    #         metrics_variables,
+    #         # x=x,
+    #         # y=y,
+    #         # y_pred=y_pred,
+    #         x=inputs,
+    #         y=targets,
+    #         y_pred=predictions,
+    #         sample_weight=sample_weight,
+    #         training=training,
+    #     )
+    #     if losses:
+    #         self._losses_override.clear()
+    #     (trainable_variables, non_trainable_variables, metrics_variables) = (
+    #         variables
+    #     )
+
+    #     # Handle loss scaling
+    #     unscaled_loss = loss
+    #     if training and self.optimizer is not None:
+    #         # Scale loss with a StatelessScope, to use an update scale variable.
+    #         mapping = list(zip(self.optimizer.variables, optimizer_variables))
+    #         with backend.StatelessScope(state_mapping=mapping):
+    #             loss = self.optimizer.scale_loss(loss)
+    #     return loss, (
+    #         unscaled_loss,
+    #         #y_pred,
+    #         predictions,
+    #         non_trainable_variables,
+    #         metrics_variables,
+    #     )
+    #     # loss = self.compute_loss(y=targets, y_pred=predictions)
+    #     # return loss, (predictions, non_trainable_variables)
+    #     # return losses, (predictions, non_trainable_variables)
 
     def train_step(self, state, data):
         (
@@ -56,13 +101,18 @@ class CustomModel(keras.Model):
             self.compute_loss_and_updates, has_aux=True
         )
 
-        (loss, (predictions, non_trainable_variables)), grads = grad_fn(
+        #(loss, (predictions, non_trainable_variables)), grads = grad_fn(
+        (loss, (unscaled_loss, predictions, non_trainable_variables,
+                metrics_variables)), grads = grad_fn(
         # (loss, non_trainable_variables), grads = grad_fn(
             trainable_variables,
             non_trainable_variables,
+            metrics_variables,###############
             inputs,
             targets,
-            #SH training=True,
+            sample_weight=None,
+            training=True,
+            optimizer_variables=optimizer_variables,
         )
         (
             trainable_variables,

@@ -6,6 +6,7 @@ os.environ["JAX_TRACEBACK_FILTERING"] = "off"
 import keras
 import mnistData
 import customModel
+from rootMeanSquaredError import RootMeanSquaredError
 
 def main():
     ((train_images, train_labels),
@@ -19,7 +20,7 @@ def main():
         #loss=["mean_square_error", "sparse_categorical_crossentropy"],
         loss=["sparse_categorical_crossentropy"],
         # metrics=[["mean_absolute_error"], ["accuracy"]],
-        metrics=["accuracy"],
+        metrics=["accuracy", RootMeanSquaredError()],
         )
 
     callbacks_list = [
@@ -35,12 +36,14 @@ def main():
         ]
         
     model.fit(
-        x=train_images,
-        y=train_labels,
+        train_images,
+        train_labels,
         epochs=3,
         callbacks=callbacks_list,
         validation_data=(val_images, val_labels),
     )
+
+    print("Test result:",  model.evaluate(test_images, test_labels))
 
 main()
 
