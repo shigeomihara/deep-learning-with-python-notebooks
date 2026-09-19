@@ -2,6 +2,7 @@
 import keras
 import mnistData
 import customModel
+from rootMeanSquaredError import RootMeanSquaredError
 
 def main():
     ((train_images, train_labels),
@@ -16,13 +17,15 @@ def main():
         # metrics=[["mean_absolute_error"], ["accuracy"]],
         loss=["sparse_categorical_crossentropy"],
         # loss=["mean_squared_error"],
-        metrics=["accuracy"],
+        # metrics=["accuracy"],
+        metrics=["accuracy", RootMeanSquaredError()],
         # metrics=["mean_absolute_error"],
         )
 
     callbacks_list = [
         keras.callbacks.EarlyStopping(
-            monitor="accuracy",
+            # monitor="accuracy",
+            monitor="loss",
             patience=1,
             ),
         keras.callbacks.ModelCheckpoint(
@@ -35,10 +38,18 @@ def main():
     model.fit(
         train_images,
         train_labels,
-        epochs=10,
+        epochs=3,
+        batch_size=128,
         callbacks=callbacks_list,
         validation_data=(val_images, val_labels),
     )
+
+    test_results = model.evaluate(
+        test_images,
+        test_labels,
+        )
+
+    print(test_results)
 
 main()
 
